@@ -77,7 +77,7 @@ const MovieDetail = () => {
           className="w-full h-full object-cover"
         />
         <div className="absolute bottom-0 left-0 z-20 p-8 w-full">
-          <h1 className="text-3xl md:text-5xl font-bold mb-2">{movie.title}</h1>
+          <h1 className="text-3xl md:text-5xl font-bold mb-3 text-gray-200">{movie.title}</h1>
           <div className="flex flex-wrap items-center gap-4 mb-4">
             <span className="text-yellow-400 flex items-center">
               <svg
@@ -89,8 +89,8 @@ const MovieDetail = () => {
               </svg>
               {movie.vote_average.toFixed(1)}
             </span>
-            <span>{new Date(movie.release_date).getFullYear()}</span>
-            <span>
+            <span className="text-gray-200">{new Date(movie.release_date).getFullYear()}</span>
+            <span className="text-gray-200">
               {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
             </span>
             {movie.genres && (
