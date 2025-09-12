@@ -1,22 +1,27 @@
-// pages/MovieDetail.js
-import { useEffect } from "react";
+import { useEffect, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchMovieDetails } from "../../store/slices/moviesSlice";
 import { getImageUrl } from "../../services/api";
+import { ThemeContext } from "../App";
 
 const MovieDetail = () => {
   const { id } = useParams();
   const dispatch = useDispatch();
   const { details } = useSelector((state) => state.movies);
+  const { theme } = useContext(ThemeContext);
 
   useEffect(() => {
-    dispatch(fetchMovieDetails(id));
+    dispatch(fetchMovieDetails({ movieId: id }));
   }, [dispatch, id]);
 
   if (details.loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${
+          theme === "dark" ? "bg-gray-900" : "bg-white"
+        } flex items-center justify-center transition-colors duration-300`}
+      >
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
       </div>
     );
@@ -24,7 +29,11 @@ const MovieDetail = () => {
 
   if (details.error) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div
+        className={`min-h-screen ${
+          theme === "dark" ? "bg-gray-900" : "bg-white"
+        } flex items-center justify-center transition-colors duration-300`}
+      >
         <div className="text-red-500 text-xl">Error: {details.error}</div>
       </div>
     );
@@ -32,8 +41,18 @@ const MovieDetail = () => {
 
   if (!details.data) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-        <div className="text-white text-xl">Movie not found</div>
+      <div
+        className={`min-h-screen ${
+          theme === "dark" ? "bg-gray-900" : "bg-white"
+        } flex items-center justify-center transition-colors duration-300`}
+      >
+        <div
+          className={`text-xl ${
+            theme === "dark" ? "text-white" : "text-gray-900"
+          }`}
+        >
+          Movie not found
+        </div>
       </div>
     );
   }
@@ -41,7 +60,11 @@ const MovieDetail = () => {
   const movie = details.data;
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div
+      className={`min-h-screen ${
+        theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
+      } transition-colors duration-300`}
+    >
       {/* Hero Section */}
       <div className="relative w-full h-96">
         <div className="absolute inset-0 bg-black opacity-60 z-10"></div>
@@ -75,7 +98,7 @@ const MovieDetail = () => {
                 {movie.genres.map((genre) => (
                   <span
                     key={genre.id}
-                    className="bg-blue-600 px-2 py-1 rounded text-sm"
+                    className="bg-blue-600 px-2 py-1 rounded text-sm text-white"
                   >
                     {genre.name}
                   </span>
@@ -104,23 +127,53 @@ const MovieDetail = () => {
               <h3 className="text-xl font-semibold mb-4">Facts</h3>
               <div className="space-y-3">
                 <div>
-                  <h4 className="text-gray-400">Status</h4>
+                  <h4
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    Status
+                  </h4>
                   <p>{movie.status}</p>
                 </div>
                 <div>
-                  <h4 className="text-gray-400">Release Date</h4>
+                  <h4
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    Release Date
+                  </h4>
                   <p>{new Date(movie.release_date).toLocaleDateString()}</p>
                 </div>
                 <div>
-                  <h4 className="text-gray-400">Original Language</h4>
+                  <h4
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    Original Language
+                  </h4>
                   <p>{movie.original_language.toUpperCase()}</p>
                 </div>
                 <div>
-                  <h4 className="text-gray-400">Budget</h4>
+                  <h4
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    Budget
+                  </h4>
                   <p>${movie.budget.toLocaleString()}</p>
                 </div>
                 <div>
-                  <h4 className="text-gray-400">Revenue</h4>
+                  <h4
+                    className={
+                      theme === "dark" ? "text-gray-400" : "text-gray-600"
+                    }
+                  >
+                    Revenue
+                  </h4>
                   <p>${movie.revenue.toLocaleString()}</p>
                 </div>
               </div>
@@ -131,7 +184,11 @@ const MovieDetail = () => {
           <div className="md:w-2/3 lg:w-3/4">
             {/* Tagline */}
             {movie.tagline && (
-              <p className="text-xl italic text-gray-400 mb-6">
+              <p
+                className={`text-xl italic ${
+                  theme === "dark" ? "text-gray-400" : "text-gray-600"
+                } mb-6`}
+              >
                 "{movie.tagline}"
               </p>
             )}
@@ -150,7 +207,9 @@ const MovieDetail = () => {
                   {movie.credits.cast.slice(0, 8).map((actor) => (
                     <div
                       key={actor.cast_id}
-                      className="bg-gray-800 p-4 rounded-lg"
+                      className={`${
+                        theme === "dark" ? "bg-gray-800" : "bg-gray-100"
+                      } p-4 rounded-lg`}
                     >
                       <img
                         src={
@@ -161,7 +220,13 @@ const MovieDetail = () => {
                         className="w-full h-40 object-cover rounded mb-2"
                       />
                       <h4 className="font-semibold">{actor.name}</h4>
-                      <p className="text-sm text-gray-400">{actor.character}</p>
+                      <p
+                        className={`text-sm ${
+                          theme === "dark" ? "text-gray-400" : "text-gray-600"
+                        }`}
+                      >
+                        {actor.character}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -181,7 +246,11 @@ const MovieDetail = () => {
                       }}
                       key={similarMovie.id}
                     >
-                      <div className="bg-gray-800 rounded-lg overflow-hidden">
+                      <div
+                        className={`${
+                          theme === "dark" ? "bg-gray-800" : "bg-gray-100"
+                        } rounded-lg overflow-hidden`}
+                      >
                         <img
                           src={
                             getImageUrl(similarMovie.poster_path) ||
@@ -205,7 +274,13 @@ const MovieDetail = () => {
                               </svg>
                               {similarMovie.vote_average.toFixed(1)}
                             </span>
-                            <span className="text-gray-400 text-sm">
+                            <span
+                              className={`text-sm ${
+                                theme === "dark"
+                                  ? "text-gray-400"
+                                  : "text-gray-600"
+                              }`}
+                            >
                               {new Date(
                                 similarMovie.release_date
                               ).getFullYear()}

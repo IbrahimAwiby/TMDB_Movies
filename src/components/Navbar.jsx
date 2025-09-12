@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   searchMovies,
   clearSearchResults,
 } from "../../store/slices/moviesSlice";
-import { logoutUser } from "../../store/slices/authSlice";
+
+import { ThemeContext } from "../App";
 
 const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -13,6 +14,7 @@ const Navbar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.auth.user);
+  const { theme, setTheme } = useContext(ThemeContext);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -30,28 +32,26 @@ const Navbar = () => {
     navigate("/");
   };
 
-  const handleLogout = async () => {
-    await dispatch(logoutUser());
-    setMenuOpen(false);
-    navigate("/");
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   const linkClasses = ({ isActive }) =>
     `px-3 py-2 rounded-md text-sm font-medium ${
       isActive
         ? "bg-blue-600 text-white"
-        : "text-gray-300 hover:bg-gray-700 hover:text-white"
+        : "text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white"
     }`;
 
   const userDisplay = user?.displayName || user?.email?.split("@")[0] || null;
 
   return (
-    <nav className="bg-gray-800 sticky top-0 z-50">
+    <nav className="bg-white dark:bg-gray-800 shadow-md dark:shadow-none sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <Link
             to="/"
-            className="flex-shrink-0 text-xl font-bold text-white"
+            className="flex-shrink-0 text-xl font-bold text-gray-900 dark:text-white"
             onClick={handleLogoClick}
           >
             MovieDB
@@ -66,11 +66,11 @@ const Navbar = () => {
                   placeholder="Search movies..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full bg-gray-700 text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white px-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <button
                   type="submit"
-                  className="absolute right-2 top-2 text-gray-400 hover:text-white"
+                  className="absolute right-2 top-2 text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-white"
                 >
                   <svg
                     className="w-5 h-5"
@@ -105,6 +105,14 @@ const Navbar = () => {
               Upcoming
             </NavLink>
 
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+
             {/* Auth area */}
             {!user ? (
               <NavLink to="/auth" className={linkClasses}>
@@ -112,25 +120,26 @@ const Navbar = () => {
               </NavLink>
             ) : (
               <div className="flex items-center space-x-3">
-                {/* 🔹 Clickable user name -> goes to Profile */}
                 <Link
                   to="/profile"
-                  className="text-sm text-gray-200 px-2 hover:text-blue-400"
+                  className="text-sm text-gray-700 dark:text-gray-200 px-2 hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   {userDisplay}
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm"
-                >
-                  Sign Out
-                </button>
               </div>
             )}
           </div>
 
           {/* Mobile: always show auth button next to burger */}
           <div className="md:hidden flex items-center space-x-2">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
+            >
+              {theme === "dark" ? "☀️" : "🌙"}
+            </button>
+
             {!user ? (
               <Link
                 to="/auth"
@@ -141,26 +150,19 @@ const Navbar = () => {
               </Link>
             ) : (
               <div className="flex items-center space-x-2">
-                {/* 🔹 User name is clickable on mobile too */}
                 <Link
                   to="/profile"
-                  className="text-sm text-gray-200 hover:text-blue-400"
+                  className="text-sm text-gray-700 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400"
                   onClick={() => setMenuOpen(false)}
                 >
                   {userDisplay}
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1 rounded-md text-sm bg-red-600 hover:bg-red-700 text-white"
-                >
-                  Sign Out
-                </button>
               </div>
             )}
 
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="text-gray-300 hover:text-white focus:outline-none"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white focus:outline-none"
             >
               {menuOpen ? (
                 <svg
@@ -198,7 +200,7 @@ const Navbar = () => {
 
       {/* Mobile menu dropdown */}
       {menuOpen && (
-        <div className="md:hidden bg-gray-700 px-4 pt-2 pb-3 space-y-1">
+        <div className="md:hidden bg-gray-100 dark:bg-gray-700 px-4 pt-2 pb-3 space-y-1 transition-colors duration-300">
           <form
             onSubmit={handleSearch}
             className="mb-3"
@@ -211,7 +213,7 @@ const Navbar = () => {
               placeholder="Search movies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-gray-600 text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-white dark:bg-gray-600 text-gray-900 dark:text-white px-3 py-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </form>
 

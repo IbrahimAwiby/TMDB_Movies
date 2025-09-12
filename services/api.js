@@ -1,4 +1,3 @@
-// services/api.js
 import axios from "axios";
 
 const API_KEY = "b3693935f4a3d27d1b9b6f6f629e0190";
@@ -13,24 +12,25 @@ const api = axios.create({
 });
 
 export const movieAPI = {
-  getPopularMovies: (page = 1) =>
-    api.get("/movie/popular", { params: { page } }),
+  getPopularMovies: (page = 1, language = "en") =>
+    api.get("/movie/popular", { params: { page, language } }),
 
-  getMovieDetails: (movieId) =>
+  getMovieDetails: (movieId, language = "en") =>
     api.get(`/movie/${movieId}`, {
-      params: { append_to_response: "credits,videos,similar" },
+      params: { append_to_response: "credits,videos,similar", language },
     }),
 
-  searchMovies: (query, page = 1) =>
-    api.get("/search/movie", { params: { query, page } }),
+  searchMovies: (query, page = 1, language = "en") =>
+    api.get("/search/movie", { params: { query, page, language } }),
 
-  getTrendingMovies: (timeWindow = "week") =>
-    api.get(`/trending/movie/${timeWindow}`),
+  getTrendingMovies: (timeWindow = "week", language = "en") =>
+    api.get(`/trending/movie/${timeWindow}`, { params: { language } }),
 
-  getUpcomingMovies: (page = 1) =>
-    api.get("/movie/upcoming", { params: { page } }),
+  getUpcomingMovies: (page = 1, language = "en") =>
+    api.get("/movie/upcoming", { params: { page, language } }),
 
-  getGenres: () => api.get("/genre/movie/list"),
+  getGenres: (language = "en") =>
+    api.get("/genre/movie/list", { params: { language } }),
 };
 
 export const getImageUrl = (path, size = "w500") => {

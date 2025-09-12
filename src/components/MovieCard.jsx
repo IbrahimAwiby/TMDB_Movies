@@ -1,10 +1,13 @@
-// components/MovieCard.js
 import { Link } from "react-router-dom";
 import { getImageUrl } from "../../services/api";
+import { useContext } from "react";
+import { LanguageContext } from "../App";
 
 const MovieCard = ({ movie }) => {
+  const { language } = useContext(LanguageContext);
+
   return (
-    <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
+    <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
       <Link
         to={`/movie/${movie.id}`}
         onClick={() => {
@@ -22,12 +25,12 @@ const MovieCard = ({ movie }) => {
       </Link>
       <div className="p-4">
         <Link to={`/movie/${movie.id}`}>
-          <h3 className="text-lg font-semibold text-white hover:text-blue-400 truncate">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate">
             {movie.title}
           </h3>
         </Link>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-yellow-400">
+          <span className="text-yellow-500">
             <svg
               className="w-5 h-5 inline-block"
               fill="currentColor"
@@ -37,7 +40,7 @@ const MovieCard = ({ movie }) => {
             </svg>
             {movie.vote_average.toFixed(1)}
           </span>
-          <span className="text-gray-400 text-sm">
+          <span className="text-gray-600 dark:text-gray-400 text-sm">
             {new Date(movie.release_date).getFullYear()}
           </span>
         </div>

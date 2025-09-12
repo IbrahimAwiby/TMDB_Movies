@@ -1,4 +1,3 @@
-// src/App.js
 import {
   BrowserRouter as Router,
   Routes,
@@ -19,7 +18,7 @@ import Footer from "./components/Footer";
 import NotFound from "./pages/NotFound";
 import Auth from "./pages/Auth";
 import { onAuthStateChangedListener } from "../services/firebase";
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext } from "react";
 import { setUser } from "../store/slices/authSlice";
 
 // Toastify
@@ -28,6 +27,10 @@ import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Profile from "./pages/Profile";
 
+// Create context for theme and language
+export const ThemeContext = createContext();
+export const LanguageContext = createContext();
+
 function AppWithAuthListener() {
   const dispatch = useDispatch();
   const location = useLocation();
@@ -35,6 +38,18 @@ function AppWithAuthListener() {
   const user = useSelector((state) => state.auth.user);
 
   const [authChecked, setAuthChecked] = useState(false);
+
+  // ✅ حفظ المود في localStorage
+  const [theme, setTheme] = useState(() => {
+    const savedTheme = localStorage.getItem("theme");
+    return savedTheme ? savedTheme : "dark";
+  });
+
+  const [language, setLanguage] = useState("en");
+
+  useEffect(() => {
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     const unsub = onAuthStateChangedListener((user) => {
@@ -50,24 +65,21 @@ function AppWithAuthListener() {
       } else {
         dispatch(setUser(null));
       }
-      setAuthChecked(true); // ✅ Auth state is resolved
+      setAuthChecked(true);
     });
     return unsub;
   }, [dispatch]);
 
-  // Redirect only after Firebase finishes checking auth
   useEffect(() => {
     if (authChecked && !user && location.pathname === "/") {
       navigate("/auth", { replace: true });
     }
   }, [authChecked, user, location, navigate]);
 
-  // Hide Navbar & Footer on auth + not found
   const hideLayout =
     location.pathname === "/auth" || location.pathname === "/404";
 
   if (!authChecked) {
-    // Show a loading screen while Firebase checks auth
     return (
       <div className="flex items-center justify-center h-screen bg-gray-900 text-white">
         <h2 className="text-xl animate-pulse">Loading...</h2>
@@ -76,30 +88,34 @@ function AppWithAuthListener() {
   }
 
   return (
-    <>
-      {!hideLayout && <Navbar />}
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/movies" element={<Movies />} />
-          <Route path="/movie/:id" element={<MovieDetail />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/trending" element={<Trending />} />
-          <Route path="/upcoming" element={<Upcoming />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-      {!hideLayout && <Footer />}
-    </>
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <LanguageContext.Provider value={{ language, setLanguage }}>
+        <div className={theme === "dark" ? "dark" : ""}>
+          {!hideLayout && <Navbar />}
+          <main>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/movies" element={<Movies />} />
+              <Route path="/movie/:id" element={<MovieDetail />} />
+              <Route path="/search" element={<Search />} />
+              <Route path="/trending" element={<Trending />} />
+              <Route path="/upcoming" element={<Upcoming />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <Profile />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          {!hideLayout && <Footer />}
+        </div>
+      </LanguageContext.Provider>
+    </ThemeContext.Provider>
   );
 }
 
@@ -107,9 +123,8 @@ function AppRoot() {
   return (
     <Provider store={store}>
       <Router>
-        <div className="App min-h-screen bg-gray-900 text-white">
+        <div className="App min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
           <AppWithAuthListener />
-          {/* Toastify container */}
           <ToastContainer
             position="top-right"
             autoClose={3000}

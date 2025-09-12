@@ -1,7 +1,9 @@
-// pages/Home.js
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchMovies, fetchTrendingMovies } from "../../store/slices/moviesSlice";
+import {
+  fetchMovies,
+  fetchTrendingMovies,
+} from "../../store/slices/moviesSlice";
 import MovieCard from "../components/MovieCard";
 import Hero from "../components/Hero";
 
@@ -11,15 +13,17 @@ const Home = () => {
 
   useEffect(() => {
     dispatch(fetchMovies(1));
-    dispatch(fetchTrendingMovies("week"));
+    dispatch(fetchTrendingMovies({ timeWindow: "week" }));
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors duration-300">
       <Hero />
 
       <section className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-white mb-6">Popular Movies</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+          Popular Movies
+        </h2>
         {popular.loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
@@ -34,7 +38,7 @@ const Home = () => {
       </section>
 
       <section className="container mx-auto px-4 py-8">
-        <h2 className="text-2xl font-bold text-white mb-6">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
           Trending This Week
         </h2>
         {trending.loading ? (

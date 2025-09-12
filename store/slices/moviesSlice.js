@@ -3,25 +3,23 @@ import { movieAPI } from "../../services/api";
 
 export const fetchMovies = createAsyncThunk(
   "movies/fetchMovies",
-  async (page = 1) => {
+  async ({ page = 1 } = {}) => {
     const response = await movieAPI.getPopularMovies(page);
-    return response.data;
+    return { ...response.data };
   }
 );
 
 export const fetchMovieDetails = createAsyncThunk(
   "movies/fetchMovieDetails",
-  async (movieId) => {
+  async ({ movieId } = {}) => {
     const response = await movieAPI.getMovieDetails(movieId);
-    return response.data;
+    return { ...response.data };
   }
 );
 
-// --- FIXED: Accept a single payload arg (either string or object) ---
 export const searchMovies = createAsyncThunk(
   "movies/searchMovies",
   async (payload, thunkAPI) => {
-    // allow dispatch(searchMovies("batman")) or dispatch(searchMovies({ query, page }))
     let query, page;
     if (typeof payload === "string") {
       query = payload;
@@ -34,24 +32,23 @@ export const searchMovies = createAsyncThunk(
     }
 
     const response = await movieAPI.searchMovies(query, page);
-    // attach the original query to payload so reducers can store it
     return { ...response.data, query };
   }
 );
 
 export const fetchTrendingMovies = createAsyncThunk(
   "movies/fetchTrendingMovies",
-  async (timeWindow = "week") => {
+  async ({ timeWindow = "week" } = {}) => {
     const response = await movieAPI.getTrendingMovies(timeWindow);
-    return response.data;
+    return { ...response.data };
   }
 );
 
 export const fetchUpcomingMovies = createAsyncThunk(
   "movies/fetchUpcomingMovies",
-  async (page = 1) => {
+  async ({ page = 1 } = {}) => {
     const response = await movieAPI.getUpcomingMovies(page);
-    return response.data;
+    return { ...response.data };
   }
 );
 
@@ -84,7 +81,7 @@ const moviesSlice = createSlice({
       error: null,
       currentPage: 1,
       totalPages: 0,
-      totalResults: 0, // <-- store total results
+      totalResults: 0,
     },
     details: {
       data: null,
@@ -130,10 +127,9 @@ const moviesSlice = createSlice({
         state.details.loading = false;
         state.details.error = action.error.message;
       })
-      // Search Movies (FIXED)
+      // Search Movies
       .addCase(searchMovies.pending, (state, action) => {
         state.search.loading = true;
-        // reflect the started query immediately (action.meta.arg may be string or object)
         const arg = action.meta.arg;
         if (typeof arg === "string") state.search.query = arg;
         else if (arg && typeof arg === "object")

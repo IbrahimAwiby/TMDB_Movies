@@ -1,36 +1,33 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { searchMovies } from "../../store/slices/moviesSlice";
 import MovieCard from "../components/MovieCard";
 import { useLocation, useNavigate } from "react-router-dom";
+import { ThemeContext } from "../App";
 
 const Search = () => {
   const dispatch = useDispatch();
   const { search } = useSelector((state) => state.movies);
   const location = useLocation();
   const navigate = useNavigate();
+  const { theme } = useContext(ThemeContext);
 
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
 
-  // read query from URL whenever it changes
   useEffect(() => {
     const searchParams = new URLSearchParams(location.search);
     const searchQuery = searchParams.get("q");
     if (searchQuery) {
       setQuery(searchQuery);
-      // dispatch using the new payload object: { query, page }
       dispatch(searchMovies({ query: searchQuery, page }));
     }
-    // if no q in URL, we do nothing (user might come from navbar dispatch)
   }, [dispatch, location.search, page]);
 
-  // keep local page in-sync if store updates currentPage (optional)
   useEffect(() => {
     if (search.currentPage && search.currentPage !== page) {
       setPage(search.currentPage);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search.currentPage]);
 
   const handleSearch = (e) => {
@@ -39,7 +36,6 @@ const Search = () => {
       const q = query.trim();
       setPage(1);
       dispatch(searchMovies({ query: q, page: 1 }));
-      // use navigate so React Router updates location and re-runs effects
       navigate(`/search?q=${encodeURIComponent(q)}`);
       window.scrollTo(0, 0);
     }
@@ -49,7 +45,6 @@ const Search = () => {
     if (page < (search.totalPages || 1)) {
       const next = page + 1;
       setPage(next);
-      // dispatch will run automatically because page is in effect deps
       window.scrollTo(0, 0);
     }
   };
@@ -65,9 +60,19 @@ const Search = () => {
   const displayQuery = query || search.query;
 
   return (
-    <div className="min-h-screen bg-gray-900 py-8">
+    <div
+      className={`min-h-screen ${
+        theme === "dark" ? "bg-gray-900" : "bg-white"
+      } py-8 transition-colors duration-300`}
+    >
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl font-bold text-white mb-8">Search Movies</h1>
+        <h1
+          className={`text-3xl font-bold ${
+            theme === "dark" ? "text-white" : "text-gray-900"
+          } mb-8`}
+        >
+          Search Movies
+        </h1>
 
         <form onSubmit={handleSearch} className="mb-8">
           <div className="relative">
@@ -76,11 +81,19 @@ const Search = () => {
               placeholder="Search for movies..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              className="w-full bg-gray-800 text-white px-6 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={`w-full ${
+                theme === "dark"
+                  ? "bg-gray-800 text-white"
+                  : "bg-gray-100 text-gray-900"
+              } px-6 py-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500`}
             />
             <button
               type="submit"
-              className="absolute right-3 top-3 text-gray-400 hover:text-white"
+              className={`absolute right-3 top-3 ${
+                theme === "dark"
+                  ? "text-gray-400 hover:text-white"
+                  : "text-gray-500 hover:text-blue-600"
+              }`}
             >
               <svg
                 className="w-6 h-6"
@@ -107,7 +120,11 @@ const Search = () => {
           <>
             {search.results && search.results.length > 0 ? (
               <>
-                <p className="text-white mb-6">
+                <p
+                  className={`mb-6 ${
+                    theme === "dark" ? "text-white" : "text-gray-900"
+                  }`}
+                >
                   Found {search.totalResults} results for "{displayQuery}"
                 </p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
@@ -123,13 +140,21 @@ const Search = () => {
                     disabled={page === 1}
                     className={`px-4 py-2 rounded-lg ${
                       page === 1
-                        ? "bg-gray-700 cursor-not-allowed text-gray-400"
+                        ? `${
+                            theme === "dark"
+                              ? "bg-gray-700 text-gray-400"
+                              : "bg-gray-300 text-gray-500"
+                          } cursor-not-allowed`
                         : "bg-blue-600 hover:bg-blue-700 text-white"
                     }`}
                   >
                     Previous
                   </button>
-                  <span className="text-white">
+                  <span
+                    className={
+                      theme === "dark" ? "text-white" : "text-gray-900"
+                    }
+                  >
                     Page {page} of {search.totalPages || 1}
                   </span>
                   <button
@@ -137,7 +162,11 @@ const Search = () => {
                     disabled={page === search.totalPages}
                     className={`px-4 py-2 rounded-lg ${
                       page === search.totalPages
-                        ? "bg-gray-700 cursor-not-allowed text-gray-400"
+                        ? `${
+                            theme === "dark"
+                              ? "bg-gray-700 text-gray-400"
+                              : "bg-gray-300 text-gray-500"
+                          } cursor-not-allowed`
                         : "bg-blue-600 hover:bg-blue-700 text-white"
                     }`}
                   >
@@ -147,13 +176,21 @@ const Search = () => {
               </>
             ) : displayQuery ? (
               <div className="text-center py-12">
-                <p className="text-xl text-gray-400">
+                <p
+                  className={`text-xl ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
                   No results found for "{displayQuery}"
                 </p>
               </div>
             ) : (
               <div className="text-center py-12">
-                <p className="text-xl text-gray-400">
+                <p
+                  className={`text-xl ${
+                    theme === "dark" ? "text-gray-400" : "text-gray-600"
+                  }`}
+                >
                   Search for movies using the search bar above
                 </p>
               </div>
