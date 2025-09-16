@@ -16,7 +16,7 @@ const Profile = () => {
     <div
       className={`min-h-screen ${
         theme === "dark" ? "bg-gray-900" : "bg-gray-100"
-      } pt-20 px-4 transition-colors duration-300`}
+      } pt-8 px-4 transition-colors duration-300`}
     >
       <div className="container mx-auto py-8">
         {/* User Info Card */}
