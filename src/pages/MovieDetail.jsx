@@ -153,7 +153,7 @@ const MovieDetail = () => {
             </div>
 
             {/* Save Movie Button - Improved for mobile */}
-            <div className="w-full md:w-auto">
+            <div className="">
               <button
                 onClick={handleSaveMovie}
                 className={`flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg font-semibold transition-all duration-300 w-full md:w-auto ${
