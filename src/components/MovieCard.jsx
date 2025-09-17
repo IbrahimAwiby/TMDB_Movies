@@ -1,46 +1,60 @@
 import { Link } from "react-router-dom";
 import { getImageUrl } from "../../services/api";
+import { FaStar, FaCalendarAlt, FaPlayCircle } from "react-icons/fa";
 
 const MovieCard = ({ movie }) => {
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg transition-transform duration-300 hover:scale-105">
-      <Link
-        to={`/movie/${movie.id}`}
-        onClick={() => {
-          scrollTo(0, 0);
-        }}
-      >
-        <img
-          src={
-            getImageUrl(movie.poster_path) ||
-            "https://via.placeholder.com/300x450?text=No+Image"
-          }
-          alt={movie.title}
-          className="w-full h-64 object-cover"
-        />
-      </Link>
+    <div className="group bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-2">
+      <div className="relative overflow-hidden">
+        <Link
+          to={`/movie/${movie.id}`}
+          onClick={() => {
+            scrollTo(0, 0);
+          }}
+        >
+          <img
+            src={
+              getImageUrl(movie.poster_path) ||
+              "https://via.placeholder.com/300x450?text=No+Image"
+            }
+            alt={movie.title}
+            className="w-full h-72 object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          {/* Overlay with play icon on hover */}
+          <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 flex items-center justify-center transition-all duration-300 opacity-0 group-hover:opacity-100">
+            <FaPlayCircle className="text-white text-4xl transform scale-75 group-hover:scale-100 transition-transform duration-300" />
+          </div>
+        </Link>
+      </div>
+
       <div className="p-4">
         <Link to={`/movie/${movie.id}`}>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white hover:text-blue-600 dark:hover:text-blue-400 truncate">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 line-clamp-1 transition-colors duration-300">
             {movie.title}
           </h3>
         </Link>
-        <div className="flex items-center justify-between mt-2">
-          <span className="text-yellow-500">
-            <svg
-              className="w-5 h-5 inline-block"
-              fill="currentColor"
-              viewBox="0 0 20 20"
-            >
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
-          </span>
-          <span className="text-gray-600 dark:text-gray-400 text-sm">
-            {movie.release_date
-              ? new Date(movie.release_date).getFullYear()
-              : "N/A"}
-          </span>
+
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center">
+            <FaStar className="text-yellow-500 w-5 h-5 mr-1" />
+            <span className="font-semibold text-gray-900 dark:text-white">
+              {movie.vote_average ? movie.vote_average.toFixed(1) : "N/A"}
+            </span>
+          </div>
+
+          <div className="flex items-center text-gray-600 dark:text-gray-400 text-sm">
+            <FaCalendarAlt className="mr-1" />
+            <span>
+              {movie.release_date
+                ? new Date(movie.release_date).getFullYear()
+                : "N/A"}
+            </span>
+          </div>
+        </div>
+
+        {/* Additional movie info (optional) */}
+        <div className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+          {movie.overview?.substring(0, 80)}...
         </div>
       </div>
     </div>

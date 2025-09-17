@@ -5,6 +5,19 @@ import { fetchMovieDetails } from "../../store/slices/moviesSlice";
 import { saveMovie } from "../../store/slices/authSlice";
 import { getImageUrl } from "../../services/api";
 import { ThemeContext } from "../App";
+import MovieCard from "../components/MovieCard";
+import {
+  FaStar,
+  FaClock,
+  FaCalendarAlt,
+  FaBookmark,
+  FaCheck,
+  FaLanguage,
+  FaMoneyBillWave,
+  FaDollarSign,
+  FaPlay,
+  FaArrowLeft,
+} from "react-icons/fa";
 
 const MovieDetail = () => {
   const { id } = useParams();
@@ -45,6 +58,7 @@ const MovieDetail = () => {
       };
 
       dispatch(saveMovie(movieData));
+      setIsSaved(!isSaved);
     }
   };
 
@@ -98,9 +112,9 @@ const MovieDetail = () => {
         theme === "dark" ? "bg-gray-900 text-white" : "bg-white text-gray-900"
       } transition-colors duration-300`}
     >
-      {/* Hero Section */}
+      {/* Hero Section with Back Button */}
       <div className="relative w-full md:h-[590px] h-96">
-        <div className="absolute inset-0 bg-black opacity-60 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent opacity-90 z-10"></div>
         <img
           src={
             getImageUrl(movie.backdrop_path, "w1280") ||
@@ -109,91 +123,76 @@ const MovieDetail = () => {
           alt={movie.title}
           className="w-full h-full object-cover"
         />
+
+        {/* Back Button */}
+        <div className="absolute top-4 left-4 z-30">
+          <Link
+            to="/"
+            className={`inline-flex items-center px-4 py-2 rounded-lg backdrop-blur-sm ${
+              theme === "dark"
+                ? "bg-black/40 text-white hover:bg-black/60"
+                : "bg-white/20 text-white hover:bg-white/30"
+            } transition-all duration-300 shadow-lg`}
+          >
+            <FaArrowLeft className="mr-2" />
+            Back to Home
+          </Link>
+        </div>
+
         <div className="absolute bottom-0 left-0 z-20 p-4 md:p-8 w-full">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
             <div className="flex-1">
-              <h1 className="text-2xl md:text-5xl font-bold mb-2 md:mb-3 text-gray-200">
+              <h1 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4 text-white">
                 {movie.title}
               </h1>
-              <div className="flex flex-wrap items-center gap-2 md:gap-4 mb-2 md:mb-4">
-                <span className="text-yellow-400 flex items-center text-sm md:text-base">
-                  <svg
-                    className="w-4 h-4 md:w-5 md:h-5 mr-1"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                  </svg>
+              <div className="flex flex-wrap items-center gap-3 md:gap-4 mb-3 md:mb-4">
+                <span className="text-yellow-400 flex items-center text-sm md:text-base bg-black/30 px-3 py-1 rounded-full">
+                  <FaStar className="w-4 h-4 md:w-5 md:h-5 mr-1" />
                   {movie.vote_average.toFixed(1)}
                 </span>
-                <span className="text-gray-200 text-sm md:text-base">
+                <span className="text-white text-sm md:text-base bg-black/30 px-3 py-1 rounded-full flex items-center">
+                  <FaCalendarAlt className="w-4 h-4 mr-1" />
                   {new Date(movie.release_date).getFullYear()}
                 </span>
-                <span className="text-gray-200 text-sm md:text-base">
+                <span className="text-white text-sm md:text-base bg-black/30 px-3 py-1 rounded-full flex items-center">
+                  <FaClock className="w-4 h-4 mr-1" />
                   {Math.floor(movie.runtime / 60)}h {movie.runtime % 60}m
                 </span>
                 {movie.genres && (
-                  <div className="flex flex-wrap gap-1 md:gap-2">
-                    {movie.genres.slice(0, 2).map((genre) => (
+                  <div className="flex flex-wrap gap-2">
+                    {movie.genres.slice(0, 3).map((genre) => (
                       <span
                         key={genre.id}
-                        className="bg-blue-600 px-2 py-1 rounded text-xs md:text-sm text-white"
+                        className="bg-blue-600 px-3 py-1 rounded-full text-xs md:text-sm text-white"
                       >
                         {genre.name}
                       </span>
                     ))}
-                    {movie.genres.length > 2 && (
-                      <span className="bg-blue-600 px-2 py-1 rounded text-xs md:text-sm text-white">
-                        +{movie.genres.length - 2}
-                      </span>
-                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Save Movie Button - Improved for mobile */}
+            {/* Save Movie Button */}
             <div className="">
               <button
                 onClick={handleSaveMovie}
-                className={`flex items-center justify-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg font-semibold transition-all duration-300 w-full md:w-auto ${
+                className={`flex items-center justify-center gap-2 px-6 py-3 rounded-full font-semibold transition-all duration-300 w-full md:w-auto ${
                   isSaved
-                    ? "bg-green-600 hover:bg-green-700 text-white"
-                    : "bg-blue-600 hover:bg-blue-700 text-white"
+                    ? "bg-green-600 hover:bg-green-700 text-white shadow-lg"
+                    : "bg-blue-600 hover:bg-blue-700 text-white shadow-lg"
                 }`}
                 title={isSaved ? "Remove from saved movies" : "Save to profile"}
               >
                 {isSaved ? (
                   <>
-                    <svg
-                      className="w-4 h-4 md:w-5 md:h-5"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <span className="text-sm md:text-base">Saved</span>
+                    <FaCheck className="w-5 h-5" />
+                    <span className="text-base">Saved</span>
                   </>
                 ) : (
                   <>
-                    <svg
-                      className="w-4 h-4 md:w-5 md:h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"
-                      />
-                    </svg>
-                    <span className="text-sm md:text-base">Save</span>
+                    <FaBookmark className="w-5 h-5" />
+                    <span className="text-base">Save Movie</span>
                   </>
                 )}
               </button>
@@ -204,105 +203,106 @@ const MovieDetail = () => {
 
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
-        <div className="flex flex-col md:flex-row gap-8">
+        <div className="flex flex-col lg:flex-row gap-8">
           {/* Poster and Info */}
-          <div className="md:w-1/3 lg:w-1/4">
-            <img
-              src={
-                getImageUrl(movie.poster_path) ||
-                "https://via.placeholder.com/300x450?text=No+Image"
-              }
-              alt={movie.title}
-              className="w-full rounded-lg shadow-lg"
-            />
+          <div className="lg:w-1/4">
+            <div className="sticky top-6">
+              <img
+                src={
+                  getImageUrl(movie.poster_path, "w500") ||
+                  "https://via.placeholder.com/500x750?text=No+Image"
+                }
+                alt={movie.title}
+                className="w-full rounded-xl shadow-2xl"
+              />
 
-            <div className="mt-6">
-              <h3 className="text-xl font-semibold mb-4">Facts</h3>
-              <div className="space-y-3">
-                <div>
-                  <h4
-                    className={
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }
-                  >
-                    Status
-                  </h4>
-                  <p>{movie.status}</p>
-                </div>
-                <div>
-                  <h4
-                    className={
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }
-                  >
-                    Release Date
-                  </h4>
-                  <p>{new Date(movie.release_date).toLocaleDateString()}</p>
-                </div>
-                <div>
-                  <h4
-                    className={
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }
-                  >
-                    Original Language
-                  </h4>
-                  <p>{movie.original_language.toUpperCase()}</p>
-                </div>
-                <div>
-                  <h4
-                    className={
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }
-                  >
-                    Budget
-                  </h4>
-                  <p>${movie.budget.toLocaleString()}</p>
-                </div>
-                <div>
-                  <h4
-                    className={
-                      theme === "dark" ? "text-gray-400" : "text-gray-600"
-                    }
-                  >
-                    Revenue
-                  </h4>
-                  <p>${movie.revenue.toLocaleString()}</p>
+              <div className="mt-6 bg-gray-100 dark:bg-gray-800 p-6 rounded-xl">
+                <h3 className="text-xl font-semibold mb-4 flex items-center">
+                  <FaPlay className="mr-2 text-blue-500" />
+                  Movie Facts
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1">
+                      Status
+                    </h4>
+                    <p className="font-medium">{movie.status}</p>
+                  </div>
+                  <div>
+                    <h4 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1 flex items-center">
+                      <FaCalendarAlt className="mr-1" />
+                      Release Date
+                    </h4>
+                    <p className="font-medium">
+                      {new Date(movie.release_date).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1 flex items-center">
+                      <FaLanguage className="mr-1" />
+                      Original Language
+                    </h4>
+                    <p className="font-medium">
+                      {movie.original_language.toUpperCase()}
+                    </p>
+                  </div>
+                  {movie.budget > 0 && (
+                    <div>
+                      <h4 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1 flex items-center">
+                        <FaMoneyBillWave className="mr-1" />
+                        Budget
+                      </h4>
+                      <p className="font-medium">
+                        ${movie.budget.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
+                  {movie.revenue > 0 && (
+                    <div>
+                      <h4 className="text-gray-600 dark:text-gray-400 text-sm font-medium mb-1 flex items-center">
+                        <FaDollarSign className="mr-1" />
+                        Revenue
+                      </h4>
+                      <p className="font-medium">
+                        ${movie.revenue.toLocaleString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
 
           {/* Main Content */}
-          <div className="md:w-2/3 lg:w-3/4">
+          <div className="lg:w-3/4">
             {/* Tagline */}
             {movie.tagline && (
               <p
                 className={`text-xl italic ${
                   theme === "dark" ? "text-gray-400" : "text-gray-600"
-                } mb-6`}
+                } mb-8 text-center`}
               >
                 "{movie.tagline}"
               </p>
             )}
 
             {/* Overview */}
-            <div className="mb-8">
+            <div className="mb-8 bg-gray-100 dark:bg-gray-800 p-6 rounded-xl">
               <h3 className="text-2xl font-semibold mb-4">Overview</h3>
-              <p className="text-lg">{movie.overview}</p>
+              <p className="text-lg leading-relaxed">{movie.overview}</p>
             </div>
 
             {/* Cast */}
             {movie.credits && movie.credits.cast.length > 0 && (
               <div className="mb-8">
-                <h3 className="text-2xl font-semibold mb-4">Top Cast</h3>
+                <h3 className="text-2xl font-semibold mb-6">Top Cast</h3>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                   {movie.credits.cast.slice(0, 8).map((actor) => (
                     <div
                       key={actor.cast_id}
                       className={`${
-                        theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                      } p-4 rounded-lg`}
+                        theme === "dark" ? "bg-gray-800" : "bg-white"
+                      } p-4 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-300`}
                     >
                       <img
                         src={
@@ -310,13 +310,15 @@ const MovieDetail = () => {
                           "https://via.placeholder.com/185x278?text=No+Image"
                         }
                         alt={actor.name}
-                        className="w-full h-44 object-cover rounded mb-2"
+                        className="w-full h-44 object-cover rounded-lg mb-3"
                       />
-                      <h4 className="font-semibold">{actor.name}</h4>
+                      <h4 className="font-semibold text-sm truncate">
+                        {actor.name}
+                      </h4>
                       <p
-                        className={`text-sm ${
+                        className={`text-xs ${
                           theme === "dark" ? "text-gray-400" : "text-gray-600"
-                        }`}
+                        } truncate`}
                       >
                         {actor.character}
                       </p>
@@ -329,59 +331,10 @@ const MovieDetail = () => {
             {/* Similar Movies */}
             {movie.similar && movie.similar.results.length > 0 && (
               <div>
-                <h3 className="text-2xl font-semibold mb-4">Similar Movies</h3>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <h3 className="text-2xl font-semibold mb-6">Similar Movies</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4">
                   {movie.similar.results.slice(0, 4).map((similarMovie) => (
-                    <Link
-                      to={`/movie/${similarMovie.id}`}
-                      onClick={() => {
-                        scrollTo(0, 0);
-                      }}
-                      key={similarMovie.id}
-                    >
-                      <div
-                        className={`${
-                          theme === "dark" ? "bg-gray-800" : "bg-gray-100"
-                        } rounded-lg overflow-hidden`}
-                      >
-                        <img
-                          src={
-                            getImageUrl(similarMovie.poster_path) ||
-                            "https://via.placeholder.com/300x450?text=No+Image"
-                          }
-                          alt={similarMovie.title}
-                          className="w-full h-64 object-cover hover:scale-105 duration-300"
-                        />
-                        <div className="p-3">
-                          <h4 className="font-semibold text-sm truncate">
-                            {similarMovie.title}
-                          </h4>
-                          <div className="flex justify-between items-center mt-2">
-                            <span className="text-yellow-400 text-sm">
-                              <svg
-                                className="w-4 h-4 inline-block mr-1"
-                                fill="currentColor"
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                              </svg>
-                              {similarMovie.vote_average.toFixed(1)}
-                            </span>
-                            <span
-                              className={`text-sm ${
-                                theme === "dark"
-                                  ? "text-gray-400"
-                                  : "text-gray-600"
-                              }`}
-                            >
-                              {new Date(
-                                similarMovie.release_date
-                              ).getFullYear()}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </Link>
+                    <MovieCard key={similarMovie.id} movie={similarMovie} />
                   ))}
                 </div>
               </div>

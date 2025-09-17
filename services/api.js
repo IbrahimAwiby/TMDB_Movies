@@ -29,6 +29,12 @@ export const movieAPI = {
   getUpcomingMovies: (page = 1, language = "en") =>
     api.get("/movie/upcoming", { params: { page, language } }),
 
+  getTopRatedMovies: (page = 1, language = "en") =>
+    api.get("/movie/top_rated", { params: { page, language } }),
+
+  getNowPlayingMovies: (page = 1, language = "en") =>
+    api.get("/movie/now_playing", { params: { page, language } }),
+
   getGenres: (language = "en") =>
     api.get("/genre/movie/list", { params: { language } }),
 };

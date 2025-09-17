@@ -5,18 +5,39 @@ import {
   signOutCurrentUser,
 } from "../../services/firebase";
 
+// Helper functions for localStorage
+const getSavedMoviesFromStorage = (uid) => {
+  try {
+    const saved = localStorage.getItem(`savedMovies_${uid}`);
+    return saved ? JSON.parse(saved) : [];
+  } catch (error) {
+    console.error("Error reading from localStorage:", error);
+    return [];
+  }
+};
+
+const saveMoviesToStorage = (uid, movies) => {
+  try {
+    localStorage.setItem(`savedMovies_${uid}`, JSON.stringify(movies));
+  } catch (error) {
+    console.error("Error saving to localStorage:", error);
+  }
+};
+
 // Register
 export const registerUser = createAsyncThunk(
   "auth/registerUser",
   async ({ email, password, displayName }, { rejectWithValue }) => {
     try {
       const user = await signUpWithEmail({ email, password, displayName });
+      const savedMovies = getSavedMoviesFromStorage(user.uid);
+
       return {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
-        savedMovies: [], // Add savedMovies array to user object
+        savedMovies,
       };
     } catch (err) {
       return rejectWithValue(err.message);
@@ -30,12 +51,14 @@ export const loginUser = createAsyncThunk(
   async ({ email, password }, { rejectWithValue }) => {
     try {
       const user = await signInWithEmail({ email, password });
+      const savedMovies = getSavedMoviesFromStorage(user.uid);
+
       return {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
-        savedMovies: user.savedMovies || [], // Add savedMovies array
+        savedMovies,
       };
     } catch (err) {
       return rejectWithValue(err.message);
@@ -57,6 +80,10 @@ export const saveMovie = createAsyncThunk(
       const { auth } = getState();
       const currentUser = auth.user;
 
+      if (!currentUser) {
+        throw new Error("User not authenticated");
+      }
+
       // Check if movie is already saved
       const isMovieSaved = currentUser.savedMovies?.some(
         (movie) => movie.id === movieData.id
@@ -74,10 +101,30 @@ export const saveMovie = createAsyncThunk(
         updatedSavedMovies = [...(currentUser.savedMovies || []), movieData];
       }
 
-      // Here you would typically update the user's saved movies in your database
-      // For now, we'll just update the local state
+      // Save to localStorage
+      saveMoviesToStorage(currentUser.uid, updatedSavedMovies);
 
       return updatedSavedMovies;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+// Load saved movies from storage
+export const loadSavedMovies = createAsyncThunk(
+  "auth/loadSavedMovies",
+  async (_, { getState, rejectWithValue }) => {
+    try {
+      const { auth } = getState();
+      const currentUser = auth.user;
+
+      if (!currentUser) {
+        throw new Error("User not authenticated");
+      }
+
+      const savedMovies = getSavedMoviesFromStorage(currentUser.uid);
+      return savedMovies;
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -93,9 +140,21 @@ const authSlice = createSlice({
   },
   reducers: {
     setUser(state, action) {
+      // FIXED: Check if payload is null before accessing its properties
+      if (action.payload === null) {
+        state.user = null;
+        state.status = "idle";
+        state.error = null;
+        return;
+      }
+
+      const savedMovies = action.payload.uid
+        ? getSavedMoviesFromStorage(action.payload.uid)
+        : [];
+
       state.user = {
         ...action.payload,
-        savedMovies: action.payload.savedMovies || [],
+        savedMovies,
       };
       state.status = "succeeded";
       state.error = null;
@@ -106,6 +165,13 @@ const authSlice = createSlice({
     updateSavedMovies(state, action) {
       if (state.user) {
         state.user.savedMovies = action.payload;
+        saveMoviesToStorage(state.user.uid, action.payload);
+      }
+    },
+    // Clear saved movies from localStorage when needed
+    clearSavedMoviesStorage(state) {
+      if (state.user) {
+        localStorage.removeItem(`savedMovies_${state.user.uid}`);
       }
     },
   },
@@ -156,9 +222,20 @@ const authSlice = createSlice({
         if (s.user) {
           s.user.savedMovies = a.payload;
         }
+      })
+
+      .addCase(loadSavedMovies.fulfilled, (s, a) => {
+        if (s.user) {
+          s.user.savedMovies = a.payload;
+        }
       });
   },
 });
 
-export const { setUser, clearError, updateSavedMovies } = authSlice.actions;
+export const {
+  setUser,
+  clearError,
+  updateSavedMovies,
+  clearSavedMoviesStorage,
+} = authSlice.actions;
 export default authSlice.reducer;

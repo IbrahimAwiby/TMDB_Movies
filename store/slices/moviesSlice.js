@@ -52,6 +52,22 @@ export const fetchUpcomingMovies = createAsyncThunk(
   }
 );
 
+export const fetchTopRatedMovies = createAsyncThunk(
+  "movies/fetchTopRatedMovies",
+  async ({ page = 1 } = {}) => {
+    const response = await movieAPI.getTopRatedMovies(page);
+    return { ...response.data };
+  }
+);
+
+export const fetchNowPlayingMovies = createAsyncThunk(
+  "movies/fetchNowPlayingMovies",
+  async ({ page = 1 } = {}) => {
+    const response = await movieAPI.getNowPlayingMovies(page);
+    return { ...response.data };
+  }
+);
+
 const moviesSlice = createSlice({
   name: "movies",
   initialState: {
@@ -68,6 +84,20 @@ const moviesSlice = createSlice({
       error: null,
     },
     upcoming: {
+      list: [],
+      loading: false,
+      error: null,
+      currentPage: 1,
+      totalPages: 0,
+    },
+    topRated: {
+      list: [],
+      loading: false,
+      error: null,
+      currentPage: 1,
+      totalPages: 0,
+    },
+    nowPlaying: {
       list: [],
       loading: false,
       error: null,
@@ -173,6 +203,34 @@ const moviesSlice = createSlice({
       .addCase(fetchUpcomingMovies.rejected, (state, action) => {
         state.upcoming.loading = false;
         state.upcoming.error = action.error.message;
+      })
+      // Fetch Top Rated Movies
+      .addCase(fetchTopRatedMovies.pending, (state) => {
+        state.topRated.loading = true;
+      })
+      .addCase(fetchTopRatedMovies.fulfilled, (state, action) => {
+        state.topRated.loading = false;
+        state.topRated.list = action.payload.results;
+        state.topRated.currentPage = action.payload.page;
+        state.topRated.totalPages = action.payload.total_pages;
+      })
+      .addCase(fetchTopRatedMovies.rejected, (state, action) => {
+        state.topRated.loading = false;
+        state.topRated.error = action.error.message;
+      })
+      // Fetch Now Playing Movies
+      .addCase(fetchNowPlayingMovies.pending, (state) => {
+        state.nowPlaying.loading = true;
+      })
+      .addCase(fetchNowPlayingMovies.fulfilled, (state, action) => {
+        state.nowPlaying.loading = false;
+        state.nowPlaying.list = action.payload.results;
+        state.nowPlaying.currentPage = action.payload.page;
+        state.nowPlaying.totalPages = action.payload.total_pages;
+      })
+      .addCase(fetchNowPlayingMovies.rejected, (state, action) => {
+        state.nowPlaying.loading = false;
+        state.nowPlaying.error = action.error.message;
       });
   },
 });
